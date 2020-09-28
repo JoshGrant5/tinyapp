@@ -1,6 +1,8 @@
 const express = require("express");
 const app = express();
-const PORT = 8080; // default port 8080
+const PORT = 8080;
+
+app.set("view engine", "ejs");
 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
@@ -26,4 +28,10 @@ app.get("/urls.json", (req, res) => {
 app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 }); // curl -i http://localhost:8080/hello will give us back this string, while redirecting to "/hello" will show us Hello World => converted from json to html
+
+// Use express to render URLs from urlDatabase to our urls_index.ejs file
+app.get("/urls", (req, res) => {
+  const templateVars = { urls: urlDatabase };
+  res.render("urls_index.ejs", templateVars);
+});
 
