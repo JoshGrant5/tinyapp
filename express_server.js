@@ -32,6 +32,11 @@ app.get("/hello", (req, res) => {
 // Use express to render URLs from urlDatabase to our urls_index.ejs file
 app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase };
-  res.render("urls_index.ejs", templateVars);
+  res.render("urls_index", templateVars);
+});
+
+app.get("/urls/:shortURL", (req, res) => {
+  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
+  res.render("urls_show", templateVars);
 });
 
