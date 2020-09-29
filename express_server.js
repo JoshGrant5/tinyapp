@@ -74,18 +74,15 @@ app.post('/urls/:shortURL/delete', (req, res) => {
   res.redirect('/urls');
 });
 
-// post from edit button, redirect to urls_show to change url name
+// post from edit button, redirecting to urls_show to change url name
 app.post('/urls/:shortURL/edit', (req, res) => {
-  // console.log(res.get(params))
-  // delete urlDatabase[res.params.shortURL];
   const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
   res.render('urls_show', templateVars);
 });
 
-// post from submit button to change url in urls_show, refresh the same page to show change
+// post from submit button to change url in urls_show, redirecting to home page to show change
 app.post('/urls/:id', (req, res) => {
-  console.log(res)
-  // const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
+  urlDatabase[req.params.id] = req.body.longURL;
   res.redirect('/urls');
 });
 
