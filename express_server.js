@@ -43,15 +43,18 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
+// render template for page where you can enter a new URL
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
 
+// based on request, render the short URL and long URL to the browser
 app.get("/urls/:shortURL", (req, res) => {
   const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
   res.render("urls_show", templateVars);
 });
 
+// create a new short URL, add to urlDatabase, and render to the browser
 app.post("/urls", (req, res) => {
   const short = generateRandomString();
   urlDatabase[short] = req.body.longURL;
@@ -59,6 +62,7 @@ app.post("/urls", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
+// Upon href click, redirect to long URL of the request
 app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL];
   console.log(longURL)
