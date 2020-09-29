@@ -6,11 +6,12 @@ const request = require('request');
 
 app.set("view engine", "ejs");
 
+// middleware 
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
 
 // https://dev.to/oyetoket/fastest-way-to-generate-random-strings-in-javascript-2k5a - credit to Oyetoke Toby
-function generateRandomString() {
+const generateRandomString = () => {
   return Math.random().toString(20).substr(2, 6);
 }
 
@@ -83,10 +84,10 @@ app.post('/urls/:shortURL/delete', (req, res) => {
 });
 
 // post from edit button, redirecting to urls_show to change url name
-app.post('/urls/:shortURL/edit', (req, res) => {
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
-  res.render('urls_show', templateVars);
-});
+// app.post('/urls/:shortURL/edit', (req, res) => {
+//   const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
+//   res.render('urls_show', templateVars);
+// });
 
 // post from submit button to change url in urls_show, redirecting to home page to show change
 app.post('/urls/:id', (req, res) => {
