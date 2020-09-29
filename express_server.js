@@ -67,7 +67,7 @@ app.get("/u/:shortURL", (req, res) => {
 app.post("/urls", (req, res) => {
   request(req.body.longURL, (error, response, body) => {
     if (error || response.statusCode !== 200) {
-      res.status(404).send(`URL ${req.body.longURL} not found`);
+      res.status(404).send(`Error: URL "${req.body.longURL}" not found`);
     } else {
       const short = generateRandomString();
       urlDatabase[short] = req.body.longURL;
@@ -83,15 +83,14 @@ app.post('/urls/:shortURL/delete', (req, res) => {
   res.redirect('/urls');
 });
 
-// post from edit button, redirecting to urls_show to change url name
-// app.post('/urls/:shortURL/edit', (req, res) => {
-//   const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
-//   res.render('urls_show', templateVars);
-// });
-
 // post from submit button to change url in urls_show, redirecting to home page to show change
 app.post('/urls/:id', (req, res) => {
-  urlDatabase[req.params.id] = req.body.longURL;
-  res.redirect('/urls');
+  request(req.body.longURL, (error, response, body) => {
+    if (error || response.statusCode !== 200) {
+      res.status(404).send(`Error: URL "${req.body.longURL}" not found`);
+    } else {
+      urlDatabase[req.params.id] = req.body.longURL;
+      res.redirect('/urls');
+    }
+  });
 });
-
