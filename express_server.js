@@ -69,3 +69,9 @@ app.get("/u/:shortURL", (req, res) => {
   res.redirect(longURL);
 });
 
+// post from delete button, delete the selected url from our database
+app.post('/urls/:shortURL/delete', (req, res) => {
+  delete urlDatabase[req.params.shortURL];
+  res.redirect('/urls')
+});
+
