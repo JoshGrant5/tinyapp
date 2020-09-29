@@ -54,6 +54,12 @@ app.get("/urls/:shortURL", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
+// Upon href click, redirect to long URL of the request
+app.get("/u/:shortURL", (req, res) => {
+  const longURL = urlDatabase[req.params.shortURL];
+  res.redirect(longURL);
+});
+
 // create a new short URL, add to urlDatabase, and render to the browser
 app.post("/urls", (req, res) => {
   const short = generateRandomString();
@@ -62,16 +68,24 @@ app.post("/urls", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
-// Upon href click, redirect to long URL of the request
-app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL];
-  console.log(longURL)
-  res.redirect(longURL);
-});
-
 // post from delete button, delete the selected url from our database
 app.post('/urls/:shortURL/delete', (req, res) => {
   delete urlDatabase[req.params.shortURL];
-  res.redirect('/urls')
+  res.redirect('/urls');
+});
+
+// post from edit button, redirect to urls_show to change url name
+app.post('/urls/:shortURL/edit', (req, res) => {
+  // console.log(res.get(params))
+  // delete urlDatabase[res.params.shortURL];
+  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
+  res.render('urls_show', templateVars);
+});
+
+// post from submit button to change url in urls_show, refresh the same page to show change
+app.post('/urls/:id', (req, res) => {
+  console.log(res)
+  // const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
+  res.redirect('/urls');
 });
 
