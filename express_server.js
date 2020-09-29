@@ -2,6 +2,8 @@ const express = require("express");
 const app = express();
 const PORT = 8080;
 
+const request = require('request');
+
 app.set("view engine", "ejs");
 
 const bodyParser = require("body-parser");
@@ -62,10 +64,16 @@ app.get("/u/:shortURL", (req, res) => {
 
 // create a new short URL, add to urlDatabase, and render to the browser
 app.post("/urls", (req, res) => {
-  const short = generateRandomString();
-  urlDatabase[short] = req.body.longURL;
-  const templateVars = { shortURL: short, longURL: req.body.longURL };
-  res.render("urls_show", templateVars);
+  request(req.body.longURL, (error, response, body) => {
+    if (error || response.statusCode !== 200) {
+      res.status(404).send(`URL ${req.body.longURL} not found`);
+    } else {
+      const short = generateRandomString();
+      urlDatabase[short] = req.body.longURL;
+      const templateVars = { shortURL: short, longURL: req.body.longURL };
+      res.render("urls_show", templateVars);
+    }
+  });
 });
 
 // post from delete button, delete the selected url from our database
