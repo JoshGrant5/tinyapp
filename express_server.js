@@ -17,6 +17,16 @@ const generateRandomString = () => {
   return Math.random().toString(20).substr(2, 6);
 };
 
+const emailExists = email => {
+  for (let user in users) {
+    if (users[user].email === email) {
+      return true;
+    }
+  }
+  return false;
+}
+
+// Object storing all users registered, with keys id, email, and password
 const users = {
 
 };
@@ -122,13 +132,17 @@ app.post('/register', (req, res) => {
   const userId = generateRandomString();
   if (!req.body.email || !req.body.password) {
     res.status(400).send('Error: The server could not understand your request. Did you input an email and a password?');
+  } 
+  if (emailExists(req.body.email)) {
+    res.status(400).send('Error: That email is already registered to an account.');
+  } else {
+    users[userId] = {
+      'id': userId,
+      'email':  req.body.email,
+      'password': req.body.password
+    };
+    res.cookie('username', userId);
+    res.redirect('/urls');
   }
-  users[userId] = {
-    'id': userId,
-    'email':  req.body.email,
-    'password': req.body.password
-  };
-  res.cookie('username', userId);
-  res.redirect('/urls');
 });
 
