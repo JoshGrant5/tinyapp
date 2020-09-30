@@ -40,17 +40,12 @@ app.get("/urls.json", (req, res) => {
 // get me a route to page "/hello" => if response, send it the json string of this html code
 app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
-}); // curl -i http://localhost:8080/hello will give us back this string, while redirecting to "/hello" will show us Hello World => converted from json to html
+}); 
 
 // Use express to render URLs from urlDatabase to our urls_index.ejs file
 app.get("/urls", (req, res) => {
-  // if (req.cookies["username"]) {
-  //   const templateVars = { urls: urlDatabase, username: req.cookies["username"] };
-  //   res.render("urls_index", templateVars);
-  // } else {
   const templateVars = { urls: urlDatabase, username: req.cookies.username };
   res.render("urls_index", templateVars);
-  // }
 });
 
 // render template for page where you can enter a new URL
@@ -109,8 +104,12 @@ app.post('/login', (req, res) => {
   res.redirect('/urls');
 });
 
+// On logout, clear cookie 
 app.post('/logout', (req, res) => {
   res.clearCookie('username');
   res.redirect('/urls');
 });
 
+app.get('/register', (req, res) => {
+  res.render('register');
+});
