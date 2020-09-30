@@ -4,6 +4,7 @@ const PORT = 8080;
 const request = require('request');
 const bcrypt = require('bcrypt');
 const cookieSession = require('cookie-session');
+const { generateRandomString, emailExists, urlsForUser } = require('./helpers');
 
 app.set("view engine", "ejs");
 
@@ -38,32 +39,6 @@ const urlDatabase = {
   i3BoGr: { longURL: "https://www.google.ca", userID: "b6hM54" },
   b2xVn2: { longURL: "http://www.lighthouselabs.ca", userID:"aJ48lW" },
   s9m5xK: { longURL: "https://github.com/JoshGrant5", userID:"aJ48lW" }
-};
-
-//* Helper Functions:
-
-// https://dev.to/oyetoket/fastest-way-to-generate-random-strings-in-javascript-2k5a - credit to Oyetoke Toby
-const generateRandomString = () => {
-  return Math.random().toString(20).substr(2, 6);
-};
-
-const emailExists = (email, users) => {
-  for (let user in users) {
-    if (users[user].email === email) {
-      return user;
-    }
-  }
-  return false;
-};
-
-const urlsForUser = (id, urlDatabase) => {
-  let newDB = {};
-  for (let shortURL in urlDatabase) {
-    if (urlDatabase[shortURL].userID === id) {
-      newDB[shortURL] = {longURL: urlDatabase[shortURL].longURL, userID: id};
-    }
-  }
-  return newDB;
 };
 
 app.get("/", (req, res) => {
