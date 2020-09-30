@@ -27,22 +27,25 @@ const emailExists = email => {
 
 // Object storing all users registered, with keys id, email, and password
 const users = {
-  "userRandomID": {
-    id: "userRandomID", 
-    email: "user@example.com", 
-    password: "purple-monkey-dinosaur"
-  },
- "user2RandomID": {
-    id: "user2RandomID", 
-    email: "user2@example.com", 
-    password: "dishwasher-funk"
+  aJ48lW: {
+    id: "aJ48lW", 
+    email: "joshgg@lhl.ca", 
+    password: "lighthouse"
+  }, 
+  b6hM54: {
+    id: "b6hM54", 
+    email: "cooldude@ex.com", 
+    password: "cool99"
   }
 };
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  b6UTxQ: { longURL: "https://www.tsn.ca", userID: "b6hM54" },
+  i3BoGr: { longURL: "https://www.google.ca", userID: "b6hM54" },
+  b2xVn2: { longURL: "http://www.lighthouselabs.ca", userID:"aJ48lW" },
+  s9m5xK: { longURL: "https://github.com/JoshGrant5", userID:"aJ48lW" }
 };
+
 
 // get me a route to page "/" => if we get a response, send the page "Hello!"
 app.get("/", (req, res) => {
@@ -66,6 +69,7 @@ app.get("/hello", (req, res) => {
 
 // Use express to render URLs from urlDatabase to our urls_index.ejs file
 app.get("/urls", (req, res) => {
+  console.log(users[req.cookies.user_id])
   const templateVars = { urls: urlDatabase, users: users[req.cookies.user_id] };
   res.render("urls_index", templateVars);
 });
@@ -78,13 +82,13 @@ app.get("/urls/new", (req, res) => {
 
 // based on request, render the short URL and long URL to the browser
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], users: users[req.cookies.user_id] };
+  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL, users: users[req.cookies.user_id] };
   res.render("urls_show", templateVars);
 });
 
 // Upon href click, redirect to long URL of the request
 app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL];
+  const longURL = urlDatabase[req.params.shortURL].longURL;
   res.redirect(longURL);
 });
 
@@ -99,13 +103,17 @@ app.get('/login', (req, res) => {
 });
 
 // create a new short URL, add to urlDatabase, and render to the browser
+// If user is not logged in, take them to the login page
 app.post("/urls", (req, res) => {
+  if (!req.cookies.user_id) {
+    res.redirect('login');
+  }
   request(req.body.longURL, (error, response, body) => {
     if (error || response.statusCode !== 200) {
       res.status(404).send(`Error: URL "${req.body.longURL}" not found`);
     } else {
       const short = generateRandomString();
-      urlDatabase[short] = req.body.longURL;
+      urlDatabase[short].longURL = req.body.longURL;
       const templateVars = { shortURL: short, longURL: req.body.longURL, users: users[req.cookies.user_id] };
       res.render("urls_show", templateVars);
     }
@@ -124,7 +132,7 @@ app.post('/urls/:id', (req, res) => {
     if (error || response.statusCode !== 200) {
       res.status(404).send(`Error: URL "${req.body.longURL}" not found`);
     } else {
-      urlDatabase[req.params.id] = req.body.longURL;
+      urlDatabase[req.params.id].longURL = req.body.longURL;
       res.redirect('/urls');
     }
   });
