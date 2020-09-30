@@ -90,11 +90,13 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 app.get('/register', (req, res) => {
-  res.render('register');
+  const templateVars = { urls: urlDatabase, users: users[req.cookies.user_id] };
+  res.render('register', templateVars);
 });
 
 app.get('/login', (req, res) => {
-  res.render('login');
+  const templateVars = { urls: urlDatabase, users: users[req.cookies.user_id] };
+  res.render('login', templateVars);
 });
 
 // create a new short URL, add to urlDatabase, and render to the browser

@@ -11,27 +11,28 @@
   <title>Login</title>
 </head>
 
-<!-- Bootstrap Form from https://startbootstrap.com/snippets/registration-page/ -->
+<!-- Bootstrap Login Screen from https://startbootstrap.com/snippets/login/ -->
 <body>
+  <%- include('partials/_header') %>
   <div class="container">
     <div class="row">
-      <div class="col-lg-10 col-xl-9 mx-auto">
-        <div class="card card-signin flex-row my-5">
-          <div class="card-img-left d-none d-md-flex">
-             <!-- Background image for card set in CSS! -->
-          </div>
+      <div class="col-sm-9 col-md-7 col-lg-5 mx-auto">
+        <div class="card card-signin my-5">
           <div class="card-body">
-            <h5 class="card-title text-center">Login</h5>
-            <form class="form-signin" method='POST' action='/login'>
+            <h5 class="card-title text-center bg-success">TinyApp Login</h5>
+            <form class="form-signin" method='POST' action='/register'>
               <div class="form-label-group">
-                <label for='email'>Email Address</label>
-                <input type="email" name='email' class="form-control" placeholder="Email address" required>
+                <label for="inputEmail">Email Address</label>
+                <input type="email" name='email' class="form-control" placeholder="Email Address" required autofocus>
               </div>
               <div class="form-label-group">
-                <label for='password'>Password</label>
-                <input type="password" name='password' class="form-control" placeholder="Password" required>
+                <label for="inputPassword">Password</label>
+                <input type="password" name='password' class="form-control" placeholder="Password" required>   
               </div>
-              <br>
+              <div class="custom-control custom-checkbox mb-3">
+                <input type="checkbox" class="custom-control-input" id="customCheck1">
+                <label class="custom-control-label" for="customCheck1">Remember password</label>
+              </div>
               <button class="btn btn-lg btn-primary btn-block text-uppercase" type="submit">Login</button>
             </form>
           </div>
