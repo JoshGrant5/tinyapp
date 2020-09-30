@@ -3,19 +3,19 @@ const app = express();
 const PORT = 8080;
 
 const request = require('request');
-var cookieParser = require('cookie-parser');
+let cookieParser = require('cookie-parser');
 
 app.set("view engine", "ejs");
-app.use(cookieParser())
+app.use(cookieParser());
 
-// middleware 
+// middleware
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
 
 // https://dev.to/oyetoket/fastest-way-to-generate-random-strings-in-javascript-2k5a - credit to Oyetoke Toby
 const generateRandomString = () => {
   return Math.random().toString(20).substr(2, 6);
-}
+};
 
 const users = {
 
@@ -44,7 +44,7 @@ app.get("/urls.json", (req, res) => {
 // get me a route to page "/hello" => if response, send it the json string of this html code
 app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
-}); 
+});
 
 // Use express to render URLs from urlDatabase to our urls_index.ejs file
 app.get("/urls", (req, res) => {
@@ -112,19 +112,22 @@ app.post('/login', (req, res) => {
   res.redirect('/urls');
 });
 
-// On logout, clear cookie 
+// On logout, clear cookie
 app.post('/logout', (req, res) => {
   res.clearCookie('username');
   res.redirect('/urls');
 });
 
 app.post('/register', (req, res) => {
-  const userId = generateRandomString()
+  const userId = generateRandomString();
+  if (!req.body.email || !req.body.password) {
+    res.status(400).send('Error: The server could not understand your request. Did you input an email and a password?');
+  }
   users[userId] = {
     'id': userId,
     'email':  req.body.email,
     'password': req.body.password
-  }
+  };
   res.cookie('username', userId);
   res.redirect('/urls');
 });
