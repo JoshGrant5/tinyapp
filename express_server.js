@@ -69,7 +69,6 @@ app.get("/hello", (req, res) => {
 
 // Use express to render URLs from urlDatabase to our urls_index.ejs file
 app.get("/urls", (req, res) => {
-  console.log(users[req.cookies.user_id])
   const templateVars = { urls: urlDatabase, users: users[req.cookies.user_id] };
   res.render("urls_index", templateVars);
 });
@@ -113,7 +112,9 @@ app.post("/urls", (req, res) => {
       res.status(404).send(`Error: URL "${req.body.longURL}" not found`);
     } else {
       const short = generateRandomString();
-      urlDatabase[short].longURL = req.body.longURL;
+      urlDatabase[short] = {longURL: req.body.longURL, userID: req.cookies.user_id };
+      console.log(urlDatabase)
+      console.log(users)
       const templateVars = { shortURL: short, longURL: req.body.longURL, users: users[req.cookies.user_id] };
       res.render("urls_show", templateVars);
     }
@@ -166,7 +167,7 @@ app.post('/register', (req, res) => {
   if (!req.body.email || !req.body.password) {
     res.status(400).send('Error: The server could not understand your request. Did you input an email and a password?');
   } 
-  if (emailExists(req.body.email)) {
+  if (emailExists(req.body.email)) {s
     res.status(400).send('Error: That email is already registered to an account.');
   } else {
     users[userId] = {
