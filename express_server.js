@@ -1,16 +1,15 @@
 const express = require("express");
 const app = express();
 const PORT = 8080;
-
 const request = require('request');
-let cookieParser = require('cookie-parser');
 
 app.set("view engine", "ejs");
-app.use(cookieParser());
 
 // middleware
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
+let cookieParser = require('cookie-parser');
+app.use(cookieParser());
 
 // https://dev.to/oyetoket/fastest-way-to-generate-random-strings-in-javascript-2k5a - credit to Oyetoke Toby
 const generateRandomString = () => {
