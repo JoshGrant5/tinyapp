@@ -58,19 +58,19 @@ app.get("/hello", (req, res) => {
 
 // Use express to render URLs from urlDatabase to our urls_index.ejs file
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase, users: users[req.cookies.username] };
+  const templateVars = { urls: urlDatabase, users: users[req.cookies.user_id] };
   res.render("urls_index", templateVars);
 });
 
 // render template for page where you can enter a new URL
 app.get("/urls/new", (req, res) => {
-  const templateVars = { users: users[req.cookies.username] };
+  const templateVars = { users: users[req.cookies.user_id] };
   res.render("urls_new", templateVars);
 });
 
 // based on request, render the short URL and long URL to the browser
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], users: users[req.cookies.username] };
+  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], users: users[req.cookies.user_id] };
   res.render("urls_show", templateVars);
 });
 
@@ -96,7 +96,7 @@ app.post("/urls", (req, res) => {
     } else {
       const short = generateRandomString();
       urlDatabase[short] = req.body.longURL;
-      const templateVars = { shortURL: short, longURL: req.body.longURL, users: users[req.cookies.username] };
+      const templateVars = { shortURL: short, longURL: req.body.longURL, users: users[req.cookies.user_id] };
       res.render("urls_show", templateVars);
     }
   });
@@ -122,13 +122,13 @@ app.post('/urls/:id', (req, res) => {
 
 // Set cookie for username and redirect to home page
 app.post('/login', (req, res) => {
-  res.cookie('username', req.body.username);
+  res.cookie('user_id', req.body.username);
   res.render('/login');
 });
 
 // On logout, clear cookie
 app.post('/logout', (req, res) => {
-  res.clearCookie('username');
+  res.clearCookie('user_id');
   res.redirect('/urls');
 });
 
@@ -145,7 +145,7 @@ app.post('/register', (req, res) => {
       'email':  req.body.email,
       'password': req.body.password
     };
-    res.cookie('username', userId);
+    res.cookie('user_id', userId);
     res.redirect('/urls');
   }
 });
