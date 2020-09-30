@@ -74,6 +74,7 @@ app.get("/urls", (req, res) => {
 });
 
 // render template for page where you can enter a new URL
+// redirect to login if user is not logged in
 app.get("/urls/new", (req, res) => {
   const templateVars = { users: users[req.cookies.user_id] };
   res.render("urls_new", templateVars);
@@ -102,11 +103,7 @@ app.get('/login', (req, res) => {
 });
 
 // create a new short URL, add to urlDatabase, and render to the browser
-// If user is not logged in, take them to the login page
 app.post("/urls", (req, res) => {
-  if (!req.cookies.user_id) {
-    res.redirect('login');
-  }
   request(req.body.longURL, (error, response, body) => {
     if (error || response.statusCode !== 200) {
       res.status(404).send(`Error: URL "${req.body.longURL}" not found`);
