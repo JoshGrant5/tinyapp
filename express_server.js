@@ -79,8 +79,9 @@ app.get("/hello", (req, res) => {
 });
 
 // Use express to render URLs from urlDatabase to our urls_index.ejs file
+// if user not logged in, they will not be able to see urls
 app.get("/urls", (req, res) => {
-  const userDB = urlsForUser(req.cookies.user_id)
+  const userDB = urlsForUser(req.cookies.user_id);
   const templateVars = { urls: userDB, users: users[req.cookies.user_id] };
   res.render("urls_index", templateVars);
 });
@@ -93,9 +94,15 @@ app.get("/urls/new", (req, res) => {
 });
 
 // based on request, render the short URL and long URL to the browser
+// cannot access the route with specified url if not logged in, or if the url does not belong to that user
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL, users: users[req.cookies.user_id] };
-  res.render("urls_show", templateVars);
+  const userDB = urlsForUser(req.cookies.user_id);
+  if (req.params.shortURL in userDB) {
+    const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL, users: users[req.cookies.user_id] };
+    res.render("urls_show", templateVars);
+  } else {
+    res.send('You are not authorized to view!');
+  }
 });
 
 // Upon href click, redirect to long URL of the request
@@ -132,8 +139,13 @@ app.post("/urls", (req, res) => {
 
 // post from delete button, delete the selected url from our database
 app.post('/urls/:shortURL/delete', (req, res) => {
-  delete urlDatabase[req.params.shortURL];
-  res.redirect('/urls');
+  const newDB = urlsForUser(req.cookies.user_id);
+  if (req.params.shortURL in newDB) {
+    delete urlDatabase[req.params.shortURL];
+    res.redirect('/urls');
+  } else {
+    res.send('Not authorized to delete this url!');
+  }
 });
 
 // post from submit button to change url in urls_show, redirecting to home page to show change
@@ -142,8 +154,13 @@ app.post('/urls/:id', (req, res) => {
     if (error || response.statusCode !== 200) {
       res.status(404).send(`Error: URL "${req.body.longURL}" not found`);
     } else {
-      urlDatabase[req.params.id].longURL = req.body.longURL;
-      res.redirect('/urls');
+      const newDB = urlsForUser(req.cookies.user_id);
+      if (req.params.id in newDB) {
+        urlDatabase[req.params.id].longURL = req.body.longURL;
+        res.redirect('/urls');
+      } else {
+        res.send('Not authorized to edit!');
+      }
     }
   });
 });
