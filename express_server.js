@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const PORT = 8080;
 const request = require('request');
+const bcrypt = require('bcrypt');
 
 app.set("view engine", "ejs");
 
@@ -13,15 +14,15 @@ app.use(cookieParser());
 
 // Object storing all users registered, with keys id, email, and password
 const users = {
-  aJ48lW: {
-    id: "aJ48lW", 
-    email: "joshgg@lhl.ca", 
-    password: "lighthouse"
-  }, 
+  aJ48lW: { 
+    id: "aJ48lW",
+    email: "joshgg@lhl.ca",
+    password: "$2b$10$bGD2YZSgr/JBafLJLvCIKeP6Zb7hk5.8PrqdiMOjExNVVYrOT0/8m" //lighthouse
+  },
   b6hM54: {
-    id: "b6hM54", 
-    email: "cooldude@ex.com", 
-    password: "cool99"
+    id: "b6hM54",
+    email: "cooldude@ex.com",
+    password: "$2b$10$thaiLO0e9XhE0ef2rz45fOPCBoYaa5uNuS4Ewcfot4jvYcQiBA6Ti" //cool99
   }
 };
 
@@ -46,7 +47,7 @@ const emailExists = email => {
     }
   }
   return false;
-}
+};
 
 const urlsForUser = id => {
   let newDB = {};
@@ -129,8 +130,8 @@ app.post("/urls", (req, res) => {
     } else {
       const short = generateRandomString();
       urlDatabase[short] = {longURL: req.body.longURL, userID: req.cookies.user_id };
-      console.log(urlDatabase)
-      console.log(users)
+      console.log(urlDatabase);
+      console.log(users);
       const templateVars = { shortURL: short, longURL: req.body.longURL, users: users[req.cookies.user_id] };
       res.render("urls_show", templateVars);
     }
@@ -168,12 +169,12 @@ app.post('/urls/:id', (req, res) => {
 app.post('/login', (req, res) => {
   if (!req.body.email || !req.body.password) {
     res.status(400).send('Error: The server could not understand your request. Did you input an email and a password?');
-  } 
+  }
   let match = emailExists(req.body.email);
   if (!match) {
     res.status(403).send('Error: That email is not registered with an account.');
   } else {
-    if (users[match].password !== req.body.password) {
+    if (!bcrypt.compareSync(req.body.password, users[match].password)) {
       res.status(403).send('Error: Password does not match.');
     } else {
       res.cookie('user_id', match);
@@ -192,14 +193,15 @@ app.post('/register', (req, res) => {
   const userId = generateRandomString();
   if (!req.body.email || !req.body.password) {
     res.status(400).send('Error: The server could not understand your request. Did you input an email and a password?');
-  } 
-  if (emailExists(req.body.email)) {s
+  }
+  if (emailExists(req.body.email)) {
     res.status(400).send('Error: That email is already registered to an account.');
   } else {
+    const hashedPassword = bcrypt.hashSync(req.body.password, 10);
     users[userId] = {
       'id': userId,
       'email':  req.body.email,
-      'password': req.body.password
+      'password': hashedPassword
     };
     res.cookie('user_id', userId);
     res.redirect('/urls');
