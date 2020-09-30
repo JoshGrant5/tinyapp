@@ -17,6 +17,10 @@ const generateRandomString = () => {
   return Math.random().toString(20).substr(2, 6);
 }
 
+const users = {
+
+};
+
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
@@ -44,19 +48,19 @@ app.get("/hello", (req, res) => {
 
 // Use express to render URLs from urlDatabase to our urls_index.ejs file
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase, username: req.cookies.username };
+  const templateVars = { urls: urlDatabase, users: users[req.cookies.username] };
   res.render("urls_index", templateVars);
 });
 
 // render template for page where you can enter a new URL
 app.get("/urls/new", (req, res) => {
-  const templateVars = { username: req.cookies.username };
+  const templateVars = { users: users[req.cookies.username] };
   res.render("urls_new", templateVars);
 });
 
 // based on request, render the short URL and long URL to the browser
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], username: req.cookies.username };
+  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], users: users[req.cookies.username] };
   res.render("urls_show", templateVars);
 });
 
@@ -64,6 +68,10 @@ app.get("/urls/:shortURL", (req, res) => {
 app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL];
   res.redirect(longURL);
+});
+
+app.get('/register', (req, res) => {
+  res.render('register');
 });
 
 // create a new short URL, add to urlDatabase, and render to the browser
@@ -74,7 +82,7 @@ app.post("/urls", (req, res) => {
     } else {
       const short = generateRandomString();
       urlDatabase[short] = req.body.longURL;
-      const templateVars = { shortURL: short, longURL: req.body.longURL, username: req.cookies.username };
+      const templateVars = { shortURL: short, longURL: req.body.longURL, users: users[req.cookies.username] };
       res.render("urls_show", templateVars);
     }
   });
@@ -110,6 +118,14 @@ app.post('/logout', (req, res) => {
   res.redirect('/urls');
 });
 
-app.get('/register', (req, res) => {
-  res.render('register');
+app.post('/register', (req, res) => {
+  const userId = generateRandomString()
+  users[userId] = {
+    'id': userId,
+    'email':  req.body.email,
+    'password': req.body.password
+  }
+  res.cookie('username', userId);
+  res.redirect('/urls');
 });
+
