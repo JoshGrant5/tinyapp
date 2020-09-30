@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+
+  <link rel="stylesheet" href="/static/styles.css">
+
+  <title>Login</title>
+</head>
+
+<!-- Bootstrap Form from https://startbootstrap.com/snippets/registration-page/ -->
+<body>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-10 col-xl-9 mx-auto">
+        <div class="card card-signin flex-row my-5">
+          <div class="card-img-left d-none d-md-flex">
+             <!-- Background image for card set in CSS! -->
+          </div>
+          <div class="card-body">
+            <h5 class="card-title text-center">Login</h5>
+            <form class="form-signin"></form>
+              <div class="form-label-group">
+                <label for='email'>Email Address</label>
+                <input type="email" name='email' class="form-control" placeholder="Email address" required>
+              </div>
+              <div class="form-label-group">
+                <label for='password'>Password</label>
+                <input type="password" name='password' class="form-control" placeholder="Password" required>
+              </div>
+              <button class="btn btn-lg btn-primary btn-block text-uppercase" type="submit">Login</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>

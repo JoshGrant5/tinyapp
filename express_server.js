@@ -84,6 +84,10 @@ app.get('/register', (req, res) => {
   res.render('register');
 });
 
+app.get('/login', (req, res) => {
+  res.render('login');
+});
+
 // create a new short URL, add to urlDatabase, and render to the browser
 app.post("/urls", (req, res) => {
   request(req.body.longURL, (error, response, body) => {
@@ -119,7 +123,7 @@ app.post('/urls/:id', (req, res) => {
 // Set cookie for username and redirect to home page
 app.post('/login', (req, res) => {
   res.cookie('username', req.body.username);
-  res.redirect('/urls');
+  res.render('/login');
 });
 
 // On logout, clear cookie
@@ -145,4 +149,3 @@ app.post('/register', (req, res) => {
     res.redirect('/urls');
   }
 });
-
