@@ -47,7 +47,7 @@ const generateRandomString = () => {
   return Math.random().toString(20).substr(2, 6);
 };
 
-const emailExists = email => {
+const emailExists = (email, users) => {
   for (let user in users) {
     if (users[user].email === email) {
       return user;
@@ -56,7 +56,7 @@ const emailExists = email => {
   return false;
 };
 
-const urlsForUser = id => {
+const urlsForUser = (id, urlDatabase) => {
   let newDB = {};
   for (let shortURL in urlDatabase) {
     if (urlDatabase[shortURL].userID === id) {
@@ -88,7 +88,7 @@ app.get("/hello", (req, res) => {
 // Use express to render URLs from urlDatabase to our urls_index.ejs file
 // if user not logged in, they will not be able to see urls
 app.get("/urls", (req, res) => {
-  const userDB = urlsForUser(req.session.user_id);
+  const userDB = urlsForUser(req.session.user_id, urlDatabase);
   const templateVars = { urls: userDB, users: users[req.session.user_id] };
   res.render("urls_index", templateVars);
 });
@@ -103,7 +103,7 @@ app.get("/urls/new", (req, res) => {
 // based on request, render the short URL and long URL to the browser
 // cannot access the route with specified url if not logged in, or if the url does not belong to that user
 app.get("/urls/:shortURL", (req, res) => {
-  const userDB = urlsForUser(req.session.user_id);
+  const userDB = urlsForUser(req.session.user_id, urlDatabase);
   if (req.params.shortURL in userDB) {
     const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL, users: users[req.session.user_id] };
     res.render("urls_show", templateVars);
@@ -146,7 +146,7 @@ app.post("/urls", (req, res) => {
 
 // post from delete button, delete the selected url from our database
 app.post('/urls/:shortURL/delete', (req, res) => {
-  const newDB = urlsForUser(req.session.user_id);
+  const newDB = urlsForUser(req.session.user_id, urlDatabase);
   if (req.params.shortURL in newDB) {
     delete urlDatabase[req.params.shortURL];
     res.redirect('/urls');
@@ -161,7 +161,7 @@ app.post('/urls/:id', (req, res) => {
     if (error || response.statusCode !== 200) {
       res.status(404).send(`Error: URL "${req.body.longURL}" not found`);
     } else {
-      const newDB = urlsForUser(req.session.user_id);
+      const newDB = urlsForUser(req.session.user_id, urlDatabase);
       if (req.params.id in newDB) {
         urlDatabase[req.params.id].longURL = req.body.longURL;
         res.redirect('/urls');
@@ -176,7 +176,7 @@ app.post('/login', (req, res) => {
   if (!req.body.email || !req.body.password) {
     res.status(400).send('Error: The server could not understand your request. Did you input an email and a password?');
   }
-  let match = emailExists(req.body.email);
+  let match = emailExists(req.body.email, users);
   if (!match) {
     res.status(403).send('Error: That email is not registered with an account.');
   } else {
@@ -200,7 +200,7 @@ app.post('/register', (req, res) => {
   if (!req.body.email || !req.body.password) {
     res.status(400).send('Error: The server could not understand your request. Did you input an email and a password?');
   }
-  if (emailExists(req.body.email)) {
+  if (emailExists(req.body.email, users)) {
     res.status(400).send('Error: That email is already registered to an account.');
   } else {
     const hashedPassword = bcrypt.hashSync(req.body.password, 10);
