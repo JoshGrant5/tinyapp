@@ -20,7 +20,7 @@ const generateRandomString = () => {
 const emailExists = email => {
   for (let user in users) {
     if (users[user].email === email) {
-      return true;
+      return user;
     }
   }
   return false;
@@ -28,7 +28,16 @@ const emailExists = email => {
 
 // Object storing all users registered, with keys id, email, and password
 const users = {
-
+  "userRandomID": {
+    id: "userRandomID", 
+    email: "user@example.com", 
+    password: "purple-monkey-dinosaur"
+  },
+ "user2RandomID": {
+    id: "user2RandomID", 
+    email: "user2@example.com", 
+    password: "dishwasher-funk"
+  }
 };
 
 const urlDatabase = {
@@ -120,10 +129,21 @@ app.post('/urls/:id', (req, res) => {
   });
 });
 
-// Set cookie for username and redirect to home page
 app.post('/login', (req, res) => {
-  res.cookie('user_id', req.body.username);
-  res.render('/login');
+  if (!req.body.email || !req.body.password) {
+    res.status(400).send('Error: The server could not understand your request. Did you input an email and a password?');
+  } 
+  let match = emailExists(req.body.email);
+  if (!match) {
+    res.status(403).send('Error: That email is not registered with an account.');
+  } else {
+    if (users[match].password !== req.body.password) {
+      res.status(403).send('Error: Password does not match.');
+    } else {
+      res.cookie('user_id', match);
+      res.redirect('/urls');
+    }
+  }
 });
 
 // On logout, clear cookie
