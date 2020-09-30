@@ -11,20 +11,6 @@ app.use(bodyParser.urlencoded({extended: true}));
 let cookieParser = require('cookie-parser');
 app.use(cookieParser());
 
-// https://dev.to/oyetoket/fastest-way-to-generate-random-strings-in-javascript-2k5a - credit to Oyetoke Toby
-const generateRandomString = () => {
-  return Math.random().toString(20).substr(2, 6);
-};
-
-const emailExists = email => {
-  for (let user in users) {
-    if (users[user].email === email) {
-      return user;
-    }
-  }
-  return false;
-}
-
 // Object storing all users registered, with keys id, email, and password
 const users = {
   aJ48lW: {
@@ -46,6 +32,31 @@ const urlDatabase = {
   s9m5xK: { longURL: "https://github.com/JoshGrant5", userID:"aJ48lW" }
 };
 
+//* Helper Functions:
+
+// https://dev.to/oyetoket/fastest-way-to-generate-random-strings-in-javascript-2k5a - credit to Oyetoke Toby
+const generateRandomString = () => {
+  return Math.random().toString(20).substr(2, 6);
+};
+
+const emailExists = email => {
+  for (let user in users) {
+    if (users[user].email === email) {
+      return user;
+    }
+  }
+  return false;
+}
+
+const urlsForUser = id => {
+  let newDB = {};
+  for (let shortURL in urlDatabase) {
+    if (urlDatabase[shortURL].userID === id) {
+      newDB[shortURL] = {longURL: urlDatabase[shortURL].longURL, userID: id};
+    }
+  }
+  return newDB;
+};
 
 // get me a route to page "/" => if we get a response, send the page "Hello!"
 app.get("/", (req, res) => {
@@ -69,7 +80,8 @@ app.get("/hello", (req, res) => {
 
 // Use express to render URLs from urlDatabase to our urls_index.ejs file
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase, users: users[req.cookies.user_id] };
+  const userDB = urlsForUser(req.cookies.user_id)
+  const templateVars = { urls: userDB, users: users[req.cookies.user_id] };
   res.render("urls_index", templateVars);
 });
 
