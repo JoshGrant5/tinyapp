@@ -34,10 +34,14 @@ const users = {
 
 // Object storing all short URLs (example URLs hardcoded)
 const urlDatabase = {
-  b6UTxQ: { longURL: "https://www.tsn.ca", userID: "b6hM54" },
+  b6UTxQ: { longURL: "https://www.tsn.ca", userID: "b6hM54" }, 
   i3BoGr: { longURL: "https://www.google.ca", userID: "b6hM54" },
   b2xVn2: { longURL: "http://www.lighthouselabs.ca", userID:"aJ48lW" },
   s9m5xK: { longURL: "https://github.com/JoshGrant5", userID:"aJ48lW" }
+};
+
+const totalVisits = {
+  b2xVn2: {date: '', views: '', uniqueViews: ''},
 };
 
 app.listen(PORT, () => {
@@ -53,6 +57,8 @@ app.get("/", (req, res) => {
 app.get("/urls", (req, res) => {
   const userDB = urlsForUser(req.session.user_id, urlDatabase);
   const templateVars = { urls: userDB, users: users[req.session.user_id] };
+  console.log(req.session.user_id)
+  console.log(req.session)
   res.render("urls_index", templateVars);
 });
 
@@ -83,10 +89,27 @@ app.get("/urls/:shortURL", (req, res) => {
   }
 });
 
+// Function adding the timestamp and adding a count to visit/uniqueVisit for specified short URL
+const visitorCount = (shortURL, db) => {
+  let timestamp = new Date();
+  const date = timestamp.toUTCString();
+  if (!shortURL in req.session.visits) {
+    let views = 1;
+    let uniqueViews = 1;
+    db[shortURL] = { date , views , uniqueViews };
+    req.session.visits = [shortURL];
+  } else {
+    db[shortURL].date = date;
+    db[shortURL].views++;
+    req.session.visits.push(shortURL);
+  }
+};
+
 // Upon href click of the short URL, Redirect to the webpage for that long URL
-app.get("/u/:shortURL", (req, res) => {
+app.get("/u/:shortURL", (req, res) => { 
   if (req.params.shortURL in urlDatabase) {
     const longURL = urlDatabase[req.params.shortURL].longURL;
+    visitorCount(shortURL, totalVisits);
     res.redirect(longURL);
   } else {
     const templateVars = { error: 404, message: `Short URL "${req.params.shortURL}" Does Not Exist`, users: users[req.session.user_id]};
