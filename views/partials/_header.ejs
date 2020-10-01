@@ -1,7 +1,7 @@
-<!-- <head>
+<head>
   <link href="https://fonts.googleapis.com/css2?family=Baloo+Tammudu+2&display=swap" rel="stylesheet">
-</head> -->
-<!--style="font-family: 'Baloo Tammudu 2', 'cursive'"-->
+  <link href="https://fonts.googleapis.com/css2?family=Fugaz+One&display=swap" rel="stylesheet">
+</head>
 
 <header>
   <nav class="navbar navbar-expand-md navbar-dark bg-success" style="height: 75px"> <!-- Makes height of nav static at 75px-->
@@ -21,8 +21,8 @@
     </div>
     <% if (users) { %>
       <form class="form-inline" method="POST" action="/logout">
-        <label class="navbar-brand">Logged in as: <%= users.email %></label>
-        <button type="submit" class="btn btn-outline-primary">Logout</button>
+        <label class="navbar-brand">Logged in as: <%= users.email %></span></label>
+        <button type="submit" class="btn btn-outline-light">Logout</button>
       </form>
     <% } else { %>
       <div class="navbar-nav">

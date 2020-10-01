@@ -1,21 +1,53 @@
 :root {
-  --input-padding-x: 1.5rem;
-  --input-padding-y: .75rem;
+  --input-padding-x: 1.25rem;
+  --input-padding-y: .4rem;
 }
 
 body {
-  background: #007bff;
-  background: linear-gradient(to right, #0062E6, #33AEFF);
+  background: white;
+  background: linear-gradient(to right, rgb(227, 252, 212), white);
+}
+
+input {
+  font-family: 'Baloo Tammudu 2', cursive;;
+  text-align: center;
+  height: -50px;
+}
+
+nav, table {
+  font-family: 'Fugaz One', cursive;
+}
+
+.smallText, td {
+  font-family: 'Baloo Tammudu 2', cursive;
+  font-size: 1.1rem;
+}
+
+.header {
+  font-family: 'Fugaz One', cursive;
+}
+
+.center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 33%;
+  text-align: center;
+}
+
+.container {
+  font-family: 'Fugaz One', cursive;
+  padding: 100px;
 }
 
 .card-signin {
   border: 0;
-  border-radius: 1rem;
+  border-radius: 1.2rem;
   box-shadow: 0 0.5rem 1rem 0 rgba(0, 0, 0, 0.1);
 }
 
 .card-signin .card-title {
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
   font-weight: 300;
   font-size: 1.5rem;
 }
@@ -72,19 +104,19 @@ body {
 }
 
 .form-label-group input:-ms-input-placeholder {
-  color: transparent;
+  color: black;
 }
 
 .form-label-group input::-ms-input-placeholder {
-  color: transparent;
+  color: black;
 }
 
 .form-label-group input::-moz-placeholder {
-  color: transparent;
+  color: black;
 }
 
 .form-label-group input::placeholder {
-  color: transparent;
+  color: black;
 }
 
 .form-label-group input:not(:placeholder-shown) {

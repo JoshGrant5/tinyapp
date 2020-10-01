@@ -124,17 +124,6 @@ app.post("/urls", (req, res) => {
   });
 });
 
-// post from delete button, delete the selected url from our database
-app.post('/urls/:shortURL/delete', (req, res) => {
-  const newDB = urlsForUser(req.session.user_id, urlDatabase);
-  if (req.params.shortURL in newDB) {
-    delete urlDatabase[req.params.shortURL];
-    res.redirect('/urls');
-  } else {
-    res.send('Not authorized to delete this url!');
-  }
-});
-
 // post from submit button to change url in urls_show, redirecting to home page to show change
 app.post('/urls/:id', (req, res) => {
   request(req.body.longURL, (error, response, body) => {
@@ -150,6 +139,17 @@ app.post('/urls/:id', (req, res) => {
       }
     }
   });
+});
+
+// post from delete button, delete the selected url from our database
+app.post('/urls/:shortURL/delete', (req, res) => {
+  const newDB = urlsForUser(req.session.user_id, urlDatabase);
+  if (req.params.shortURL in newDB) {
+    delete urlDatabase[req.params.shortURL];
+    res.redirect('/urls');
+  } else {
+    res.send('Not authorized to delete this url!');
+  }
 });
 
 app.post('/login', (req, res) => {

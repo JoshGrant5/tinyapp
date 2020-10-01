@@ -4,6 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
+  <link rel="stylesheet" href='/static/styles.css'>
+
   <!-- Bootstrap CSS -->
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
   <title>TinyApp</title>
@@ -11,15 +13,17 @@
 <body>
   <%- include('partials/_header') %> 
   <main style="margin: 1em;">
+  <br>
   <% if (users) { %>
-    <h3>My URLs</h3>
+    <h3 class='header'>My URLs</h3>
+    <br>
     <table class="table">
       <thead>
         <tr>
           <th scope="col">Short URL</th>
           <th scope="col">Long URL</th>
-          <th scope="col">Edit</th>
-          <th scope="col">Delete</th>
+          <th scope="col">&nbsp&nbsp Edit</th>
+          <th scope="col">&nbsp&nbsp Delete</th>
         </tr>
       </thead>
       <tbody>
@@ -29,12 +33,12 @@
             <td><%= urls[url].longURL %></td>
             <td>
               <form method="GET" action="/urls/<%= url %>">
-                <button type="submit" class="btn btn-outline-primary" id="editURL">Edit</button>
+                <button type="submit" class="header btn btn-outline-primary" id="editURL">Edit</button>
               </form>
             </td>
             <td>
               <form method="POST" action="/urls/<%= url %>/delete">
-                <button type="submit" class="btn btn-outline-danger">Delete</button>
+                <button type="submit" class="header btn btn-outline-danger">Delete</button>
               </form>
             </td>
           </tr>
@@ -42,8 +46,10 @@
       </tbody>
     </table>
   <% } else { %>
-    <h1>Welcome To TinyApp!</h1>
-    <h3>Please Login To View And Create Short URLs</h3>
+    <div class='header' style='padding: 100px'>
+      <h1 class='center'>Welcome To TinyApp!</h1>
+      <h3 class='center'>Please <a class='header' href='/login'>Login</a> To View And Create Short URLs</h3>
+    </div>
   <% } %>
   </main>
   <!-- Bootstrap JS -->
