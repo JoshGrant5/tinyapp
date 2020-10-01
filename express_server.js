@@ -46,18 +46,9 @@ app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
 
+// Homepage - redirects to index if logged in, or welcome message if not
 app.get("/", (req, res) => {
   res.redirect('/urls');
-});
-
-// get me a route to page "/urls.json" => if response, send it the json string of urlDatabase
-app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
-});
-
-// get me a route to page "/hello" => if response, send it the json string of this html code
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
 // Use express to render URLs from urlDatabase to our urls_index.ejs file
@@ -71,8 +62,12 @@ app.get("/urls", (req, res) => {
 // render template for page where you can enter a new URL
 // redirect to login if user is not logged in
 app.get("/urls/new", (req, res) => {
-  const templateVars = { users: users[req.session.user_id] };
-  res.render("urls_new", templateVars);
+  if (!req.session.user_id) {
+    res.redirect('/');
+  } else {
+    const templateVars = { users: users[req.session.user_id] };
+    res.render("urls_new", templateVars);
+  }
 });
 
 // based on request, render the short URL and long URL to the browser
@@ -83,7 +78,13 @@ app.get("/urls/:shortURL", (req, res) => {
     const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL, users: users[req.session.user_id] };
     res.render("urls_show", templateVars);
   } else {
-    res.send('You are not authorized to view!');
+    //TODO redirect to error page 
+    const templateVars = { 
+      error: 401, 
+      message: 'You Are Not Allowed To View This Page! Please Login Or Add This Short URL To Your Account',
+      users: users[req.session.user_id]
+    };
+    res.render('error', templateVars);
   }
 });
 
@@ -93,7 +94,9 @@ app.get("/u/:shortURL", (req, res) => {
     const longURL = urlDatabase[req.params.shortURL].longURL;
     res.redirect(longURL);
   } else {
-    res.send('Short URL does not exist');
+    //TODO redirect to error page 
+    const templateVars = { error: 404, message: `Short URL "${req.params.shortURL}" Does Not Exist`, users: users[req.session.user_id]};
+    res.render('error', templateVars);
   }
 });
 
@@ -119,7 +122,9 @@ app.get('/login', (req, res) => {
 app.post("/urls", (req, res) => {
   request(req.body.longURL, (error, response, body) => {
     if (error || response.statusCode !== 200) {
-      res.status(404).send(`Error: URL "${req.body.longURL}" not found`);
+      //TODO redirect to error page 
+      const templateVars = { error: 404, message: `URL "${req.body.longURL}" Not Found`, users: users[req.session.user_id]};
+      res.render('error', templateVars);
     } else {
       const short = generateRandomString();
       urlDatabase[short] = {longURL: req.body.longURL, userID: req.session.user_id };
@@ -132,14 +137,18 @@ app.post("/urls", (req, res) => {
 app.post('/urls/:id', (req, res) => {
   request(req.body.longURL, (error, response, body) => {
     if (error || response.statusCode !== 200) {
-      res.status(404).send(`Error: URL "${req.body.longURL}" not found`);
+      //TODO redirect to error page 
+      const templateVars = { error: 404, message: `URL "${req.body.longURL}" Not Found`, users: users[req.session.user_id]};
+      res.render('error', templateVars);
     } else {
       const newDB = urlsForUser(req.session.user_id, urlDatabase);
       if (req.params.id in newDB) {
         urlDatabase[req.params.id].longURL = req.body.longURL;
         res.redirect('/urls');
       } else {
-        res.send('Not authorized to edit!');
+        const templateVars = { error: 401, message: 'Not Authorized To Edit', users: users[req.session.user_id]};
+        //TODO redirect to error page 
+        res.render('error', templateVars);
       }
     }
   });
@@ -152,20 +161,28 @@ app.post('/urls/:shortURL/delete', (req, res) => {
     delete urlDatabase[req.params.shortURL];
     res.redirect('/urls');
   } else {
-    res.send('Not authorized to delete this url!');
+    //TODO redirect to error page 
+    const templateVars = { error: 401, message: 'Not Authorized To Delete This URL', users: users[req.session.user_id]};
+    res.render('error', templateVars);
   }
 });
 
 app.post('/login', (req, res) => {
   if (!req.body.email || !req.body.password) {
-    res.status(400).send('Error: The server could not understand your request. Did you input an email and a password?');
+    //TODO redirect to error page 
+    const templateVars = { error: 400, message: 'Could Not Login. Did You Input An Email And Password?', users: users[req.session.user_id]};
+    res.render('error', templateVars);
   }
   let match = emailExists(req.body.email, users);
   if (!match) {
-    res.status(403).send('Error: That email is not registered with an account.');
+    //TODO redirect to error page 
+    const templateVars = { error: 400, message: 'That Email Is Not Registered With An Account', users: users[req.session.user_id]};
+    res.render('error', templateVars);
   } else {
+    //TODO redirect to error page 
     if (!bcrypt.compareSync(req.body.password, users[match].password)) {
-      res.status(403).send('Error: Password does not match.');
+      const templateVars = { error: 400, message: 'Invalid Password', users: users[req.session.user_id]};
+      res.render('error', templateVars);
     } else {
       req.session.user_id = match;
       res.redirect('/urls');
@@ -182,10 +199,14 @@ app.post('/logout', (req, res) => {
 app.post('/register', (req, res) => {
   const userId = generateRandomString();
   if (!req.body.email || !req.body.password) {
-    res.status(400).send('Error: The server could not understand your request. Did you input an email and a password?');
+    //TODO redirect to error page 
+    const templateVars = { error: 400, message: 'Could Not Register. Did You Input An Email And Password?', users: users[req.session.user_id]};
+    res.render('error', templateVars);
   }
   if (emailExists(req.body.email, users)) {
-    res.status(400).send('Error: That email is already registered to an account.');
+    //TODO redirect to error page 
+    const templateVars = { error: 400, message: 'That Email Is Already Registered To An Account', users: users[req.session.user_id]};
+    res.render('error', templateVars);
   } else {
     const hashedPassword = bcrypt.hashSync(req.body.password, 10);
     users[userId] = {
