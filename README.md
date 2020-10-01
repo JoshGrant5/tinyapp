@@ -7,14 +7,20 @@ TinyApp is a full stack web application built with Node and Express that allows 
 ## Final Product
 
 !["TinyApp Welcome Page"](https://github.com/JoshGrant5/tinyapp/blob/master/docs/urls-welcome-page.png)
+Welcome Page.
 
 !["TinyApp Login"](https://github.com/JoshGrant5/tinyapp/blob/master/docs/login-page.png)
+Login Page.
 
 !["TinyApp urls-index"](https://github.com/JoshGrant5/tinyapp/blob/master/docs/urls-index-page.png)
+Index listing all the short URLs owned by particular user. Each short URL links to their website.
 
 !["TinyApp urls-new"](https://github.com/JoshGrant5/tinyapp/blob/master/docs/urls-new.png)
+Create a short URL for desired long URL.
 
 !["TinyApp urls-show"](https://github.com/JoshGrant5/tinyapp/blob/master/docs/urls-show.png)
+View created short URL, with the option of editing the long URL associated with it.
+
 
 ## Dependencies
 
