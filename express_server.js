@@ -98,13 +98,21 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 app.get('/register', (req, res) => {
-  const templateVars = { urls: urlDatabase, users: users[req.session.user_id] };
-  res.render('register', templateVars);
+  if (!req.session.user_id) {
+    const templateVars = { urls: urlDatabase, users: users[req.session.user_id] };
+    res.render('register', templateVars);
+  } else {
+    res.redirect('/urls');
+  }
 });
 
 app.get('/login', (req, res) => {
-  const templateVars = { urls: urlDatabase, users: users[req.session.user_id] };
-  res.render('login', templateVars);
+  if (!req.session.user_id) {
+    const templateVars = { urls: urlDatabase, users: users[req.session.user_id] };
+    res.render('login', templateVars);
+  } else {
+    res.redirect('/urls');
+  }
 });
 
 // create a new short URL, add to urlDatabase, and render to the browser
