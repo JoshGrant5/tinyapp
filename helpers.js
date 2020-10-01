@@ -1,9 +1,7 @@
-//* Helper Functions:
+//* TinyApp Helper Functions
 
 // https://dev.to/oyetoket/fastest-way-to-generate-random-strings-in-javascript-2k5a - credit to Oyetoke Toby
-const generateRandomString = () => {
-  return Math.random().toString(20).substr(2, 6);
-};
+const generateRandomString = () => Math.random().toString(20).substr(2, 6);
 
 const emailExists = (email, users) => {
   for (let user in users) {

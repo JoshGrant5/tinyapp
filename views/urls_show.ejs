@@ -12,27 +12,27 @@
 
 <body>
   <%- include('partials/_header') %> 
-  <div class="card text-center">
-      <div class="card-header"></div>
+  <br><br>
+  <div class="center">
       <div class="card-body">
-        <h5 class="card-title header">TinyURL for: <span class='smallText'><%= longURL %></span></h5>
-        <p class="card-text header">Short URL: <a class='smallText' href="/u/<%= shortURL %>"><%= shortURL %></a></p>
+        <h5 class="card-title header">TinyURL for: <span class='small-text'><%= longURL %></span></h5>
+        <p class="card-text header">Short URL: <a class='small-text' href="/u/<%= shortURL %>"><%= shortURL %></a></p>
       </div>
-    <div class="card-footer text-muted"></div>
   </div>
+  <br>
   <div class="card text-center">
     <div class="card-body">
       <h1 class="card-title header">Edit</h1>
-      <form class="form-inline" style="display: inline-block" action="/urls/<%= shortURL %>" method="POST"> <!-- We have the shortURL already (look line 15)-->
+      <form class="form-inline" style="display: inline-block" action="/urls/<%= shortURL %>" method="POST"> 
         <div class="form-group mb-2">
           <label for="longURL" class='header'>Enter A New URL:</label>
-          <input class="form-control" type="text" name="longURL" placeholder="http://" style="width: 300px; margin: 1em">
+          <input class="form-control left-text" type="text" name="longURL" placeholder="http://" style='width: 300px'>
           <button type="submit" class="btn btn-primary header">Update</button>
         </div>
       </form>
     </div>
-  <div class="card-footer text-muted"></div>
-</div>
+
+  </div>
   <!-- Bootstrap JS -->
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>

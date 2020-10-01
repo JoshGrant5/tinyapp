@@ -1,3 +1,5 @@
+/* Bootstrap CSS added to and edited from https://startbootstrap.com/snippets/login/  */
+
 :root {
   --input-padding-x: 1.25rem;
   --input-padding-y: .4rem;
@@ -11,14 +13,13 @@ body {
 input {
   font-family: 'Baloo Tammudu 2', cursive;;
   text-align: center;
-  height: -50px;
 }
 
 nav, table {
   font-family: 'Fugaz One', cursive;
 }
 
-.smallText, td {
+.small-text, td {
   font-family: 'Baloo Tammudu 2', cursive;
   font-size: 1.1rem;
 }
@@ -35,6 +36,11 @@ nav, table {
   text-align: center;
 }
 
+.left-text {
+  margin: 1em; 
+  text-align: start;
+}
+
 .container {
   font-family: 'Fugaz One', cursive;
   padding: 100px;
@@ -47,7 +53,7 @@ nav, table {
 }
 
 .card-signin .card-title {
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
   font-weight: 300;
   font-size: 1.5rem;
 }
@@ -75,7 +81,7 @@ nav, table {
 }
 
 .form-label-group input {
-  height: auto;
+  height: 50px;
   border-radius: 2rem;
 }
 

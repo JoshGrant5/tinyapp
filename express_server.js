@@ -1,6 +1,7 @@
 const express = require("express");
 const app = express();
 const PORT = 8080;
+
 const request = require('request');
 const bcrypt = require('bcrypt');
 const cookieSession = require('cookie-session');
@@ -12,12 +13,10 @@ app.set("view engine", "ejs");
 const bodyParser = require("body-parser");
 app.use('/static', express.static('public'));
 app.use(bodyParser.urlencoded({extended: true}));
-const cookieParser = require('cookie-parser');
-app.use(cookieParser());
+
 app.use(cookieSession({
   name: 'session',
-  keys: ['secretkey'],
-  // Cookie Options
+  keys: ['secretkeyusedtoencrypt', 'weshouldnotactuallyhavetheseembedded'], // typically we would store these in another file and .gitignore
   maxAge: 24 * 60 * 60 * 1000 // 24 hours
 }));
 
@@ -90,7 +89,7 @@ app.get("/urls/:shortURL", (req, res) => {
 
 // Upon href click, redirect to long URL of the request
 app.get("/u/:shortURL", (req, res) => {
-  if (req.params.shortURL in users) {
+  if (req.params.shortURL in urlDatabase) {
     const longURL = urlDatabase[req.params.shortURL].longURL;
     res.redirect(longURL);
   } else {
@@ -116,10 +115,7 @@ app.post("/urls", (req, res) => {
     } else {
       const short = generateRandomString();
       urlDatabase[short] = {longURL: req.body.longURL, userID: req.session.user_id };
-      console.log(urlDatabase);
-      console.log(users);
-      const templateVars = { shortURL: short, longURL: req.body.longURL, users: users[req.session.user_id] };
-      res.render("urls_show", templateVars);
+      res.redirect(`/urls/${short}`);
     }
   });
 });
