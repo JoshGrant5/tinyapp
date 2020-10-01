@@ -10,6 +10,7 @@ app.set("view engine", "ejs");
 
 // middleware
 const bodyParser = require("body-parser");
+app.use('/static', express.static('public'));
 app.use(bodyParser.urlencoded({extended: true}));
 const cookieParser = require('cookie-parser');
 app.use(cookieParser());
