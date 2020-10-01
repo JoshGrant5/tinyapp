@@ -18,9 +18,9 @@ app.use(cookieSession({
   maxAge: 24 * 60 * 60 * 1000 // 24 hours
 }));
 
-// Object storing all users registered
+// Object storing all users registered (example users hardcoded)
 const users = {
-  aJ48lW: { 
+  aJ48lW: {
     id: "aJ48lW",
     email: "joshgg@lhl.ca",
     password: "$2b$10$bGD2YZSgr/JBafLJLvCIKeP6Zb7hk5.8PrqdiMOjExNVVYrOT0/8m" // Password = lighthouse
@@ -32,7 +32,7 @@ const users = {
   }
 };
 
-// Object storing all short URLs
+// Object storing all short URLs (example URLs hardcoded)
 const urlDatabase = {
   b6UTxQ: { longURL: "https://www.tsn.ca", userID: "b6hM54" },
   i3BoGr: { longURL: "https://www.google.ca", userID: "b6hM54" },
@@ -74,8 +74,8 @@ app.get("/urls/:shortURL", (req, res) => {
     const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL, users: users[req.session.user_id] };
     res.render("urls_show", templateVars);
   } else {
-    const templateVars = { 
-      error: 401, 
+    const templateVars = {
+      error: 401,
       message: 'You Are Not Allowed To View This Page! Please Login Or Add This Short URL To Your Account',
       users: users[req.session.user_id]
     };
@@ -94,7 +94,7 @@ app.get("/u/:shortURL", (req, res) => {
   }
 });
 
-// Renders registration form 
+// Renders registration form
 app.get('/register', (req, res) => {
   if (!req.session.user_id) {
     const templateVars = { urls: urlDatabase, users: users[req.session.user_id] };
@@ -104,7 +104,7 @@ app.get('/register', (req, res) => {
   }
 });
 
-// Renders login form 
+// Renders login form
 app.get('/login', (req, res) => {
   if (!req.session.user_id) {
     const templateVars = { urls: urlDatabase, users: users[req.session.user_id] };
@@ -116,7 +116,7 @@ app.get('/login', (req, res) => {
 
 // Post request to create a new short URL, add to urlDatabase, and redirect to page showing the new URLs
 app.post("/urls", (req, res) => {
-  request(req.body.longURL, (error, response, body) => {
+  request(req.body.longURL, (error, response) => {
     if (error || response.statusCode !== 200) {
       const templateVars = { error: 404, message: `URL "${req.body.longURL}" Not Found`, users: users[req.session.user_id]};
       res.render('error', templateVars);
@@ -130,7 +130,7 @@ app.post("/urls", (req, res) => {
 
 // Post from submit button to edit the URL being viewed, redirecting to the index to show change
 app.post('/urls/:id', (req, res) => {
-  request(req.body.longURL, (error, response, body) => {
+  request(req.body.longURL, (error, response) => {
     if (error || response.statusCode !== 200) {
       const templateVars = { error: 404, message: `URL "${req.body.longURL}" Not Found`, users: users[req.session.user_id]};
       res.render('error', templateVars);

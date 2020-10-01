@@ -3,6 +3,7 @@
 // https://dev.to/oyetoket/fastest-way-to-generate-random-strings-in-javascript-2k5a - credit to Oyetoke Toby
 const generateRandomString = () => Math.random().toString(20).substr(2, 6);
 
+// If email already exists in db, return their id
 const emailExists = (email, users) => {
   for (let user in users) {
     if (users[user].email === email) {
@@ -12,6 +13,7 @@ const emailExists = (email, users) => {
   return false;
 };
 
+// Return an object containing the short URLs that belong to the specified user
 const urlsForUser = (id, urlDatabase) => {
   let newDB = {};
   for (let shortURL in urlDatabase) {
