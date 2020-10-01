@@ -42,13 +42,13 @@ const urlDatabase = {
   s9m5xK: { longURL: "https://github.com/JoshGrant5", userID:"aJ48lW" }
 };
 
-app.get("/", (req, res) => {
-  res.redirect('/urls');
-});
-
 // is the port open? Once it is, log the message
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
+});
+
+app.get("/", (req, res) => {
+  res.redirect('/urls');
 });
 
 // get me a route to page "/urls.json" => if response, send it the json string of urlDatabase
@@ -90,8 +90,12 @@ app.get("/urls/:shortURL", (req, res) => {
 
 // Upon href click, redirect to long URL of the request
 app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL].longURL;
-  res.redirect(longURL);
+  if (req.params.shortURL in users) {
+    const longURL = urlDatabase[req.params.shortURL].longURL;
+    res.redirect(longURL);
+  } else {
+    res.send('Short URL does not exist');
+  }
 });
 
 app.get('/register', (req, res) => {
