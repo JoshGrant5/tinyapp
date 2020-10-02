@@ -2,12 +2,14 @@ const express = require("express");
 const app = express();
 const PORT = 8080;
 
+const cookieParser = require('cookie-parser');
 const request = require('request');
 const bcrypt = require('bcrypt');
 const cookieSession = require('cookie-session');
 const { generateRandomString, emailExists, urlsForUser } = require('./helpers');
 
 // middleware
+app.use(cookieParser())
 app.set("view engine", "ejs");
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
@@ -18,17 +20,33 @@ app.use(cookieSession({
   maxAge: 24 * 60 * 60 * 1000 // 24 hours
 }));
 
+// Function adding the timestamp and adding a count to visit/uniqueVisit for specified short URL
+const visitorCount = (shortURL, visits, db) => {
+  let timestamp = new Date();
+  const date = timestamp.toUTCString();
+  if (!visits || !visits.includes(shortURL)) {
+    let views = 1;
+    let uniqueViews = 1;
+    db[shortURL] = { date , views , uniqueViews };
+  } else {
+    db[shortURL].date = date;
+    db[shortURL].views++;
+  } // Function will not be able to edit req.session data
+};
+
 // Object storing all users registered (example users hardcoded)
 const users = {
   aJ48lW: {
     id: "aJ48lW",
     email: "joshgg@lhl.ca",
-    password: "$2b$10$bGD2YZSgr/JBafLJLvCIKeP6Zb7hk5.8PrqdiMOjExNVVYrOT0/8m" // Password = lighthouse
+    password: "$2b$10$bGD2YZSgr/JBafLJLvCIKeP6Zb7hk5.8PrqdiMOjExNVVYrOT0/8m", // Password = lighthouse
+    visits: []
   },
   b6hM54: {
     id: "b6hM54",
     email: "cooldude@ex.com",
-    password: "$2b$10$thaiLO0e9XhE0ef2rz45fOPCBoYaa5uNuS4Ewcfot4jvYcQiBA6Ti" // Password = cool99
+    password: "$2b$10$thaiLO0e9XhE0ef2rz45fOPCBoYaa5uNuS4Ewcfot4jvYcQiBA6Ti", // Password = cool99
+    visits: []
   }
 };
 
@@ -40,8 +58,13 @@ const urlDatabase = {
   s9m5xK: { longURL: "https://github.com/JoshGrant5", userID:"aJ48lW" }
 };
 
+// Object storing the last date viewed and number of views for each short URL
+// Since we have hardcoded example short URLs in urlDatabase, we will hardcode example starting data for each of those URLs
 const totalVisits = {
-  b2xVn2: {date: '', views: '', uniqueViews: ''},
+  // b6UTxQ: {date: '', views: 0, uniqueViews: 0},
+  // i3BoGr: {date: '', views: 0, uniqueViews: 0},
+  // b2xVn2: {date: '', views: 0, uniqueViews: 0},
+  // s9m5xK: {date: '', views: 0, uniqueViews: 0},
 };
 
 app.listen(PORT, () => {
@@ -57,8 +80,6 @@ app.get("/", (req, res) => {
 app.get("/urls", (req, res) => {
   const userDB = urlsForUser(req.session.user_id, urlDatabase);
   const templateVars = { urls: userDB, users: users[req.session.user_id] };
-  console.log(req.session.user_id)
-  console.log(req.session)
   res.render("urls_index", templateVars);
 });
 
@@ -77,7 +98,13 @@ app.get("/urls/new", (req, res) => {
 app.get("/urls/:shortURL", (req, res) => {
   const userDB = urlsForUser(req.session.user_id, urlDatabase);
   if (req.params.shortURL in userDB) {
-    const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL, users: users[req.session.user_id] };
+    const templateVars = { 
+      shortURL: req.params.shortURL, 
+      longURL: urlDatabase[req.params.shortURL].longURL, 
+      users: users[req.session.user_id], 
+      visits: totalVisits[req.params.shortURL]
+    };
+    console.log('TOTAL VISITS: ', totalVisits)
     res.render("urls_show", templateVars);
   } else {
     const templateVars = {
@@ -89,27 +116,12 @@ app.get("/urls/:shortURL", (req, res) => {
   }
 });
 
-// Function adding the timestamp and adding a count to visit/uniqueVisit for specified short URL
-const visitorCount = (shortURL, db) => {
-  let timestamp = new Date();
-  const date = timestamp.toUTCString();
-  if (!shortURL in req.session.visits) {
-    let views = 1;
-    let uniqueViews = 1;
-    db[shortURL] = { date , views , uniqueViews };
-    req.session.visits = [shortURL];
-  } else {
-    db[shortURL].date = date;
-    db[shortURL].views++;
-    req.session.visits.push(shortURL);
-  }
-};
-
 // Upon href click of the short URL, Redirect to the webpage for that long URL
 app.get("/u/:shortURL", (req, res) => { 
   if (req.params.shortURL in urlDatabase) {
+    visitorCount(req.params.shortURL, req.session.visits, totalVisits);
+    req.session.visits.push(req.params.shortURL);
     const longURL = urlDatabase[req.params.shortURL].longURL;
-    visitorCount(shortURL, totalVisits);
     res.redirect(longURL);
   } else {
     const templateVars = { error: 404, message: `Short URL "${req.params.shortURL}" Does Not Exist`, users: users[req.session.user_id]};
@@ -198,6 +210,7 @@ app.post('/login', (req, res) => {
       res.render('error', templateVars);
     } else {
       req.session.user_id = match;
+      req.session.visits = users[req.session.user_id].visits;
       res.redirect('/urls');
     }
   }
@@ -215,18 +228,16 @@ app.post('/register', (req, res) => {
     res.render('error', templateVars);
   } else {
     const hashedPassword = bcrypt.hashSync(req.body.password, 10);
-    users[userId] = {
-      'id': userId,
-      'email':  req.body.email,
-      'password': hashedPassword
-    };
+    users[userId] = { 'id': userId, 'email':  req.body.email, 'password': hashedPassword };
     req.session.user_id = userId;
+    req.session.visits = [];
     res.redirect('/urls');
   }
 });
 
 // On logout, clear cookie session
 app.post('/logout', (req, res) => {
+  users[req.session.user_id].visits = users[req.session.user_id].visits.concat(req.session.visits);
   req.session = null;
   res.redirect('/urls');
 });
