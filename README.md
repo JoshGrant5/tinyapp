@@ -18,7 +18,7 @@ Index listing all the short URLs owned by particular user. Each short URL links 
 !["TinyApp urls-new"](https://github.com/JoshGrant5/tinyapp/blob/master/docs/urls-new.png)
 Create a short URL for desired long URL.
 
-!["TinyApp urls-show"](https://github.com/JoshGrant5/tinyapp/blob/master/docs/urls-show.png)
+!["TinyApp urls-show"]()
 View created short URL, with the option of editing the long URL associated with it.
 
 
