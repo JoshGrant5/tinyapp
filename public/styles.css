@@ -5,7 +5,9 @@
   --input-padding-y: .4rem;
 }
 
-body {
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
   background: white;
   background: linear-gradient(to right, rgb(227, 252, 212), white);
 }

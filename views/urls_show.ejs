@@ -31,39 +31,39 @@
     </form>
   </div>
   <br>
-  <table class="table" style='width: 110%'>
+  <table class="table">
     <thead>
-      <tr style='text-align: center'>
-        <th scope="col">Number of Visits</th>
-        <th scope="col">Unique Visits</th>
-        <th scope="col">Last Visited</th>
+      <tr>
+        <th scope="col" style='text-align: center; padding-left: 100px'>Number of Visits</th>
+        <th scope="col" style='text-align: center; padding-left: 150px; padding-right: 150px'>Unique Visits</th>
+        <th scope="col" style='text-align: center; padding-right: 100px'>Last Visited</th>
       </tr>
     </thead>
     <tbody>
       <% if (visits) { %>
-        <tr style='text-align: center; width: 110'>
-          <td><%= visits.views %></td>
-          <td><%= visits.uniqueViews.length %></td>
-          <td><%= visits.date %></td>
+        <tr>
+          <td style='text-align: center; padding-left: 25px'><%= visits.views %></td>
+          <td style='text-align: center'><%= visits.uniqueViews.length %></td>
+          <td style='text-align: center; padding-right: 25px'><%= visits.date %></td>
         </tr>
     <% } %>
     </tbody>
   </table>
   <br>
-  <h3 class='header' style='text-align: center; width: 110'>Visitor History</h3>
+  <h3 class='header' style='text-align: center'>Visitor History</h3>
   <table class="table" style='width: 110%'>
     <thead>
       <tr style='text-align: center'>
-        <th scope="col">Visitor ID</th>
-        <th scope="col">Date Visited</th>
+        <th scope="col" style='padding-left: 100px'>Visitor ID</th>
+        <th scope="col" style='padding-right: 100px'>Date Visited</th>
       </tr>
     </thead>
     <tbody>
       <% if (visits) { %>
         <% for (let view of visits.allVisits) { %>
-          <tr style='text-align: center; width: 125'>
-            <td><%= view.id %></td>
-            <td><%= view.date %></td>
+          <tr style='text-align: center'>
+            <td style='padding-left: 100px'><%= view.id %></td>
+            <td style='padding-right: 100px'><%= view.date %></td>
           </tr>
         <% } %>
     <% } %>
