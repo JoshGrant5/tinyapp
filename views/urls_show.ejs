@@ -31,9 +31,9 @@
     </form>
   </div>
   <br>
-  <table class="table">
+  <table class="table" style='width: 110%'>
     <thead>
-      <tr>
+      <tr style='text-align: center'>
         <th scope="col">Number of Visits</th>
         <th scope="col">Unique Visits</th>
         <th scope="col">Last Visited</th>
@@ -41,7 +41,7 @@
     </thead>
     <tbody>
       <% if (visits) { %>
-        <tr>
+        <tr style='text-align: center; width: 110'>
           <td><%= visits.views %></td>
           <td><%= visits.uniqueViews.length %></td>
           <td><%= visits.date %></td>
@@ -50,10 +50,10 @@
     </tbody>
   </table>
   <br>
-  <h3 class='header'>Visitor History</h3>
-  <table class="table">
+  <h3 class='header' style='text-align: center; width: 110'>Visitor History</h3>
+  <table class="table" style='width: 110%'>
     <thead>
-      <tr>
+      <tr style='text-align: center'>
         <th scope="col">Visitor ID</th>
         <th scope="col">Date Visited</th>
       </tr>
@@ -61,7 +61,7 @@
     <tbody>
       <% if (visits) { %>
         <% for (let view of visits.allVisits) { %>
-          <tr>
+          <tr style='text-align: center; width: 125'>
             <td><%= view.id %></td>
             <td><%= view.date %></td>
           </tr>

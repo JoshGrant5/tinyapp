@@ -6,7 +6,7 @@ const cookieParser = require('cookie-parser');
 const request = require('request');
 const bcrypt = require('bcrypt');
 const cookieSession = require('cookie-session');
-const { generateRandomString, emailExists, urlsForUser } = require('./helpers');
+const { generateRandomString, emailExists, urlsForUser, visitorCount } = require('./helpers');
 
 // middleware
 app.use(cookieParser())
@@ -20,34 +20,6 @@ app.use(cookieSession({
   maxAge: 24 * 60 * 60 * 1000 // 24 hours
 }));
 
-// Function adding the timestamp and adding a count to visit/uniqueVisit for specified short URL
-const visitorCount = (longURL, user, db) => {
-  let timestamp = new Date();
-  const date = timestamp.toUTCString();
-  if (longURL in db) {  // longURL key exists in our database
-    if (user) { // User is visiting the webpage
-      if (db[longURL].uniqueViews.includes(user)) { // This user is not a unique viewer
-        db[longURL].date = date;
-        db[longURL].views++;
-        db[longURL].allVisits.push({ date: date, id: users[user].visitorID });
-      } else { // This user is a unique viewer
-        db[longURL].date = date;
-        db[longURL].views++;
-        db[longURL].allVisits.push({ date: date, id: users[user].visitorID });
-        db[longURL].uniqueViews.push(user);
-      } 
-    } else { // Non user is visiting the webpage
-      db[longURL].date = date;
-      db[longURL].views++;
-      db[longURL].uniqueViews.push('non-user');
-      db[longURL].allVisits.push({ date: date, id: generateRandomString(10) });
-    }
-  } else { // longURL key does not yet exist in our database, so we must initialize the number/array inside
-    user ? visID = users[user].visitorID : visID = generateRandomString(10);
-    db[longURL] = { 'date': date, 'views': 1, 'uniqueViews': [], 'allVisits': [{ date: date, id: visID }] };
-  }
-};
-
 // Object storing all users registered (example users hardcoded)
 const users = {
   aJ48lW: {
@@ -55,14 +27,12 @@ const users = {
     visitorID: 'ah834kdJhnS',
     email: "joshgg@lhl.ca",
     password: "$2b$10$bGD2YZSgr/JBafLJLvCIKeP6Zb7hk5.8PrqdiMOjExNVVYrOT0/8m", // Password = lighthouse
-    visits: []
   },
   b6hM54: {
     id: "b6hM54",
     visitorID: 'ljm98yH9EF',
     email: "cooldude@ex.com",
     password: "$2b$10$thaiLO0e9XhE0ef2rz45fOPCBoYaa5uNuS4Ewcfot4jvYcQiBA6Ti", // Password = cool99
-    visits: []
   }
 };
 
@@ -74,13 +44,10 @@ const urlDatabase = {
   s9m5xK: { longURL: "https://github.com/JoshGrant5", userID:"aJ48lW" }
 };
 
-// Object storing the last date viewed and number of views for each short URL
-// Since we have hardcoded example short URLs in urlDatabase, we will hardcode example starting data for each of those URLs
+// Object storing the last date viewed and number of views for each short URL. Example commented below
 const visitsPerSite = {
   // sitename: {date: '', views: 0, uniqueViews: 0, allVisits: []},
 };
-
-const totalVisits = [];
 
 app.listen(PORT, () => {
   console.log(`TinyApp listening on port ${PORT}!`);
@@ -134,12 +101,7 @@ app.get("/urls/:shortURL", (req, res) => {
 app.get("/u/:shortURL", (req, res) => { 
   if (req.params.shortURL in urlDatabase) {
     const longURL = urlDatabase[req.params.shortURL].longURL;
-    console.log(longURL, req.session.user_id, visitsPerSite)
-    visitorCount(longURL, req.session.user_id, visitsPerSite);
-    // if (!visitsPerSite[urlDatabase[req.params.shortURL].longURL]users[req.session.user_id].visits.includes(urlDatabase[req.params.shortURL].longURL)) {
-    //   users[req.session.user_id].visits.push(urlDatabase[req.params.shortURL].longURL);
-    // }
-    console.log('TOTAL VISITS AFTER VIEW', visitsPerSite)
+    visitorCount(longURL, req.session.user_id, visitsPerSite, users);
     res.redirect(longURL);
   } else {
     const templateVars = { error: 404, message: `Short URL "${req.params.shortURL}" Does Not Exist`, users: users[req.session.user_id]};
@@ -228,11 +190,6 @@ app.post('/login', (req, res) => {
       res.render('error', templateVars);
     } else {
       req.session.user_id = match;
-      // req.session.visits = users[req.session.user_id].visits;
-      // console.log(req.session);
-      // console.log('USERS OBJECT: ', users)
-      // console.log('VISITS OBJECT: ', visitsPerSite)
-      // console.log('VISITS: ', req.session.visits);
       res.redirect('/urls');
     }
   }
@@ -253,18 +210,12 @@ app.post('/register', (req, res) => {
     const hashedPassword = bcrypt.hashSync(req.body.password, 10);
     users[userId] = { 'id': userId, 'visitorID': visID, 'email':  req.body.email, 'password': hashedPassword };
     req.session.user_id = userId;
-    // req.session.visits = [];
     res.redirect('/urls');
   }
 });
 
 // On logout, clear cookie session
 app.post('/logout', (req, res) => {
-  for (let visit of users[req.session.user_id].visits) {
-    totalVisits.unshift(visit);
-  }
-  console.log('TOTAL VISITS ', totalVisits)
-  console.log('TOTAL VISITS AFTER logout ', visitsPerSite)
   req.session = null;
   res.redirect('/urls');
 });
