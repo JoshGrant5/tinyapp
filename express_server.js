@@ -21,29 +21,45 @@ app.use(cookieSession({
 }));
 
 // Function adding the timestamp and adding a count to visit/uniqueVisit for specified short URL
-const visitorCount = (shortURL, visits, db) => {
+const visitorCount = (longURL, user, db) => {
   let timestamp = new Date();
   const date = timestamp.toUTCString();
-  if (!visits || !visits.includes(shortURL)) {
-    let views = 1;
-    let uniqueViews = 1;
-    db[shortURL] = { date , views , uniqueViews };
-  } else {
-    db[shortURL].date = date;
-    db[shortURL].views++;
-  } // Function will not be able to edit req.session data
+  if (longURL in db) {  // longURL key exists in our database
+    if (user) { // User is visiting the webpage
+      if (db[longURL].uniqueViews.includes(user)) { // This user is not a unique viewer
+        db[longURL].date = date;
+        db[longURL].views++;
+        db[longURL].allVisits.push({ date: date, id: users[user].visitorID });
+      } else { // This user is a unique viewer
+        db[longURL].date = date;
+        db[longURL].views++;
+        db[longURL].allVisits.push({ date: date, id: users[user].visitorID });
+        db[longURL].uniqueViews.push(user);
+      } 
+    } else { // Non user is visiting the webpage
+      db[longURL].date = date;
+      db[longURL].views++;
+      db[longURL].uniqueViews.push('non-user');
+      db[longURL].allVisits.push({ date: date, id: generateRandomString(10) });
+    }
+  } else { // longURL key does not yet exist in our database, so we must initialize the number/array inside
+    user ? visID = users[user].visitorID : visID = generateRandomString(10);
+    db[longURL] = { 'date': date, 'views': 1, 'uniqueViews': [], 'allVisits': [{ date: date, id: visID }] };
+  }
 };
 
 // Object storing all users registered (example users hardcoded)
 const users = {
   aJ48lW: {
     id: "aJ48lW",
+    visitorID: 'ah834kdJhnS',
     email: "joshgg@lhl.ca",
     password: "$2b$10$bGD2YZSgr/JBafLJLvCIKeP6Zb7hk5.8PrqdiMOjExNVVYrOT0/8m", // Password = lighthouse
     visits: []
   },
   b6hM54: {
     id: "b6hM54",
+    visitorID: 'ljm98yH9EF',
     email: "cooldude@ex.com",
     password: "$2b$10$thaiLO0e9XhE0ef2rz45fOPCBoYaa5uNuS4Ewcfot4jvYcQiBA6Ti", // Password = cool99
     visits: []
@@ -60,12 +76,11 @@ const urlDatabase = {
 
 // Object storing the last date viewed and number of views for each short URL
 // Since we have hardcoded example short URLs in urlDatabase, we will hardcode example starting data for each of those URLs
-const totalVisits = {
-  // b6UTxQ: {date: '', views: 0, uniqueViews: 0},
-  // i3BoGr: {date: '', views: 0, uniqueViews: 0},
-  // b2xVn2: {date: '', views: 0, uniqueViews: 0},
-  // s9m5xK: {date: '', views: 0, uniqueViews: 0},
+const visitsPerSite = {
+  // sitename: {date: '', views: 0, uniqueViews: 0, allVisits: []},
 };
+
+const totalVisits = [];
 
 app.listen(PORT, () => {
   console.log(`TinyApp listening on port ${PORT}!`);
@@ -102,9 +117,8 @@ app.get("/urls/:shortURL", (req, res) => {
       shortURL: req.params.shortURL, 
       longURL: urlDatabase[req.params.shortURL].longURL, 
       users: users[req.session.user_id], 
-      visits: totalVisits[req.params.shortURL]
+      visits: visitsPerSite[urlDatabase[req.params.shortURL].longURL]
     };
-    console.log('TOTAL VISITS: ', totalVisits)
     res.render("urls_show", templateVars);
   } else {
     const templateVars = {
@@ -119,9 +133,13 @@ app.get("/urls/:shortURL", (req, res) => {
 // Upon href click of the short URL, Redirect to the webpage for that long URL
 app.get("/u/:shortURL", (req, res) => { 
   if (req.params.shortURL in urlDatabase) {
-    visitorCount(req.params.shortURL, req.session.visits, totalVisits);
-    req.session.visits.push(req.params.shortURL);
     const longURL = urlDatabase[req.params.shortURL].longURL;
+    console.log(longURL, req.session.user_id, visitsPerSite)
+    visitorCount(longURL, req.session.user_id, visitsPerSite);
+    // if (!visitsPerSite[urlDatabase[req.params.shortURL].longURL]users[req.session.user_id].visits.includes(urlDatabase[req.params.shortURL].longURL)) {
+    //   users[req.session.user_id].visits.push(urlDatabase[req.params.shortURL].longURL);
+    // }
+    console.log('TOTAL VISITS AFTER VIEW', visitsPerSite)
     res.redirect(longURL);
   } else {
     const templateVars = { error: 404, message: `Short URL "${req.params.shortURL}" Does Not Exist`, users: users[req.session.user_id]};
@@ -156,7 +174,7 @@ app.post("/urls", (req, res) => {
       const templateVars = { error: 404, message: `URL "${req.body.longURL}" Not Found`, users: users[req.session.user_id]};
       res.render('error', templateVars);
     } else {
-      const short = generateRandomString();
+      const short = generateRandomString(6);
       urlDatabase[short] = {longURL: req.body.longURL, userID: req.session.user_id };
       res.redirect(`/urls/${short}`);
     }
@@ -210,7 +228,11 @@ app.post('/login', (req, res) => {
       res.render('error', templateVars);
     } else {
       req.session.user_id = match;
-      req.session.visits = users[req.session.user_id].visits;
+      // req.session.visits = users[req.session.user_id].visits;
+      // console.log(req.session);
+      // console.log('USERS OBJECT: ', users)
+      // console.log('VISITS OBJECT: ', visitsPerSite)
+      // console.log('VISITS: ', req.session.visits);
       res.redirect('/urls');
     }
   }
@@ -218,7 +240,8 @@ app.post('/login', (req, res) => {
 
 // Validate that the user input correct registration requirments, then redirect to index
 app.post('/register', (req, res) => {
-  const userId = generateRandomString();
+  const userId = generateRandomString(6);
+  const visID = generateRandomString(10);
   if (!req.body.email || !req.body.password) {
     const templateVars = { error: 400, message: 'Could Not Register. Did You Input An Email And Password?', users: users[req.session.user_id]};
     res.render('error', templateVars);
@@ -228,16 +251,20 @@ app.post('/register', (req, res) => {
     res.render('error', templateVars);
   } else {
     const hashedPassword = bcrypt.hashSync(req.body.password, 10);
-    users[userId] = { 'id': userId, 'email':  req.body.email, 'password': hashedPassword };
+    users[userId] = { 'id': userId, 'visitorID': visID, 'email':  req.body.email, 'password': hashedPassword };
     req.session.user_id = userId;
-    req.session.visits = [];
+    // req.session.visits = [];
     res.redirect('/urls');
   }
 });
 
 // On logout, clear cookie session
 app.post('/logout', (req, res) => {
-  users[req.session.user_id].visits = users[req.session.user_id].visits.concat(req.session.visits);
+  for (let visit of users[req.session.user_id].visits) {
+    totalVisits.unshift(visit);
+  }
+  console.log('TOTAL VISITS ', totalVisits)
+  console.log('TOTAL VISITS AFTER logout ', visitsPerSite)
   req.session = null;
   res.redirect('/urls');
 });
