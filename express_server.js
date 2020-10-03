@@ -44,7 +44,7 @@ const urlDatabase = {
 
 // Object storing the last date viewed and number of views for each short URL. Example commented below
 const visitsPerSite = {
-  // sitename: {date: '', views: 0, uniqueViews: 0, allVisits: []},
+  // sitename: {date: '', views: 0, uniqueViews: [], allVisits: []},
 };
 
 app.listen(PORT, () => {
@@ -99,8 +99,19 @@ app.get("/urls/:shortURL", (req, res) => {
 app.get("/u/:shortURL", (req, res) => { 
   if (req.params.shortURL in urlDatabase) {
     const longURL = urlDatabase[req.params.shortURL].longURL;
-    visitorCount(longURL, req.session.user_id, visitsPerSite, users);
-    res.redirect(longURL);
+    if (req.session.user_id) { // User is logged in
+      visitorCount(longURL, req.session.user_id, visitsPerSite, users);
+      res.redirect(longURL);
+    } else {
+      if (req.session.public) { // Public cookie has already been set for this viewer
+        visitorCount(longURL, req.session.public, visitsPerSite, users);
+        res.redirect(longURL);
+      } else { // No public cookie yet, so we set one as this is a unique viewer
+        req.session.public = generateRandomString(10);
+        visitorCount(longURL, req.session.public, visitsPerSite, users);
+        res.redirect(longURL);
+      }
+    }
   } else {
     const templateVars = { error: 404, message: `Short URL "${req.params.shortURL}" Does Not Exist`, users: users[req.session.user_id]};
     res.render('error', templateVars);
@@ -214,6 +225,6 @@ app.post('/register', (req, res) => {
 
 // On logout, clear cookie session
 app.post('/logout', (req, res) => {
-  req.session = null;
+  req.session.user_id = null;
   res.redirect('/urls');
 });
