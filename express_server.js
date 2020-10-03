@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const PORT = 8080;
 
+const methodOverride = require('method-override')
 const request = require('request');
 const bcrypt = require('bcrypt');
 const cookieSession = require('cookie-session');
@@ -9,6 +10,7 @@ const { generateRandomString, emailExists, urlsForUser, visitorCount } = require
 
 // middleware
 app.set("view engine", "ejs");
+app.use(methodOverride('_method'))
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
 app.use('/static', express.static('public'));
@@ -153,7 +155,7 @@ app.post("/urls", (req, res) => {
 });
 
 // Post from submit button to edit the URL being viewed, redirecting to the index to show change
-app.post('/urls/:id', (req, res) => {
+app.put('/urls/:id', (req, res) => {
   request(req.body.longURL, (error, response) => {
     if (error || response.statusCode !== 200) {
       const templateVars = { error: 404, message: `URL "${req.body.longURL}" Not Found`, users: users[req.session.user_id]};
@@ -172,7 +174,7 @@ app.post('/urls/:id', (req, res) => {
 });
 
 // Post to delete the selected URL from user's database
-app.post('/urls/:shortURL/delete', (req, res) => {
+app.delete('/urls/:shortURL/delete', (req, res) => {
   const newDB = urlsForUser(req.session.user_id, urlDatabase);
   if (req.params.shortURL in newDB) {
     delete urlDatabase[req.params.shortURL];

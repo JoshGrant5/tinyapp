@@ -22,7 +22,7 @@
   <br><br>
   <div class="center">
     <h1 class="card-title header">Edit</h1>
-    <form class="form-inline" style="display: inline-block" action="/urls/<%= shortURL %>" method="POST"> 
+    <form class="form-inline" style="display: inline-block" action="/urls/<%= shortURL %>?_method=PUT" method="POST"> 
       <div class="form-group mb-2">
         <label for="longURL" class='header'>Enter A New URL:</label>
         <input class="form-control left-text" type="text" name="longURL" placeholder="http://" style='width: 300px'>

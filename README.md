@@ -31,6 +31,7 @@ View created short URL, with the option of editing the long URL associated with 
 - body-parser
 - cookie-session
 - request 
+- method-override
 
 ## Getting Started
 
