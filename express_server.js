@@ -6,12 +6,12 @@ const methodOverride = require('method-override')
 const request = require('request');
 const bcrypt = require('bcrypt');
 const cookieSession = require('cookie-session');
+const bodyParser = require("body-parser");
 const { generateRandomString, emailExists, urlsForUser, visitorCount } = require('./helpers');
 
 // middleware
 app.set("view engine", "ejs");
 app.use(methodOverride('_method'))
-const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
 app.use('/static', express.static('public'));
 app.use(cookieSession({
@@ -79,20 +79,17 @@ app.get("/urls/new", (req, res) => {
 // Cannot access the route with specified URL if not logged in, or if the URL does not belong to that user
 app.get("/urls/:shortURL", (req, res) => {
   const userDB = urlsForUser(req.session.user_id, urlDatabase);
-  if (req.params.shortURL in userDB) {
-    const templateVars = { 
-      shortURL: req.params.shortURL, 
-      longURL: urlDatabase[req.params.shortURL].longURL, 
-      users: users[req.session.user_id], 
-      visits: visitsPerSite[urlDatabase[req.params.shortURL].longURL]
-    };
+  const templateVars = {};
+  if (req.params.shortURL in userDB) { 
+    templateVars.shortURL = req.params.shortURL;
+    templateVars.longURL = urlDatabase[req.params.shortURL].longURL;
+    templateVars.users = users[req.session.user_id]; 
+    templateVars.visits = visitsPerSite[urlDatabase[req.params.shortURL].longURL];
     res.render("urls_show", templateVars);
   } else {
-    const templateVars = {
-      error: 401,
-      message: 'You Are Not Allowed To View This Page! Please Login Or Add This Short URL To Your Account',
-      users: users[req.session.user_id]
-    };
+    templateVars.error = 401;
+    templateVars.message = 'You Are Not Allowed To View This Page! Please Login Or Add This Short URL To Your Account';
+    templateVars.users = users[req.session.user_id];
     res.render('error', templateVars);
   }
 });

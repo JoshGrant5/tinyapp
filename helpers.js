@@ -15,7 +15,7 @@ const emailExists = (email, users) => {
 
 // Return an object containing the short URLs that belong to the specified user
 const urlsForUser = (id, urlDatabase) => {
-  let newDB = {};
+  const newDB = {};
   for (let shortURL in urlDatabase) {
     if (urlDatabase[shortURL].userID === id) {
       newDB[shortURL] = {longURL: urlDatabase[shortURL].longURL, userID: id};
